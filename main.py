@@ -160,7 +160,7 @@ try:
                         value='Lunes'
                     ),
                     html.Button("Predecir", id='predict-button', n_clicks=0),
-                    html.Div(id='prediction-output', style={'marginTop': '20px'})
+                    html.Div(id='prediction-output', style={'marginTop': '30px', 'textAlign': 'center'})
                 ])
             ])
         ])
@@ -175,11 +175,13 @@ try:
         demand_data = calculate_weekly_demand(day, data)
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
-            title=f"Demanda el {day}", color='avg_earning'
+            title=f"Demanda el {day}"
+            labels={'trip_count': 'Cantidad de viajes', 'zone_name': 'Zona'}
         )
         fig_earning = px.bar(
             demand_data, x='zone_name', y='avg_earning',
             title=f"Ganancia Promedio el {day}"
+            labels={'avg_earning': 'Ganancia promedio ($)', 'zone_name': 'Zona'}
         )
         return fig_demand, fig_earning
 
@@ -191,11 +193,13 @@ try:
         demand_data = calculate_weekly_demand(day, yellow_data)
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
-            title=f"Demanda el {day}", color='avg_earning'
+            title=f"Demanda el {day}"
+            labels={'trip_count': 'Cantidad de viajes', 'zone_name': 'Zona'}
         )
         fig_earning = px.bar(
             demand_data, x='zone_name', y='avg_earning',
             title=f"Ganancia Promedio el {day}"
+            labels={'avg_earning': 'Ganancia promedio ($)', 'zone_name': 'Zona'}
         )
         return fig_demand, fig_earning
 
@@ -207,7 +211,8 @@ try:
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
             heatmap_data, x='pickup_hour', y='pickup_day', z='trip_count',
-            title=f"Demanda por Horas y Días en {zone}",
+            title=f"Gráfico de demanda por Horas y días en {zone}",
+            labels={'pickup_hour': 'Hora', 'pickup_day': 'Día', 'trip_count': 'Cantidad de viajes'}
             color_continuous_scale='Viridis'
         )
         return [fig]
@@ -235,7 +240,7 @@ try:
 
     @app.get("/")
     def read_root():
-        return HTMLResponse('<h1>Bienvenido a la API</h1><p>Visita <a href="/dashboard">/dashboard</a></p>')
+        return HTMLResponse('<h1>Bienvenido a TaxiCom2.0</h1><p>Visita <a href="/dashboard">/dashboard</a></p>')
 
 except Exception as e:
     logger.error(f"Error al inicializar la app: {e}")
