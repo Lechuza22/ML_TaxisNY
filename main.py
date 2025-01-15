@@ -5,7 +5,7 @@ import numpy as np
 import plotly.express as px
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, dash_table
 from starlette.middleware.wsgi import WSGIMiddleware
 import logging
 
@@ -117,6 +117,7 @@ try:
 
         return None, None, None
 
+    # Configuración de Dash
     dash_app = Dash(
         __name__,
         requests_pathname_prefix="/dashboard/"
@@ -130,7 +131,8 @@ try:
                     options=[{'label': day, 'value': day} for day in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']],
                     value='Lunes'
                 ),
-                dcc.Graph(id='demand-chart-green')
+                dcc.Graph(id='demand-chart-green'),
+                dcc.Graph(id='avg-earning-chart-green'),
             ]),
             dcc.Tab(label='Taxis Amarillos', children=[
                 html.H1("Demanda de Taxis Amarillos"),
@@ -139,7 +141,8 @@ try:
                     options=[{'label': day, 'value': day} for day in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']],
                     value='Lunes'
                 ),
-                dcc.Graph(id='demand-chart-yellow')
+                dcc.Graph(id='demand-chart-yellow'),
+                dcc.Graph(id='avg-earning-chart-yellow'),
             ]),
             dcc.Tab(label='Análisis Avanzado', children=[
                 html.H1("Análisis Avanzado"),
@@ -148,81 +151,86 @@ try:
                     options=[{'label': zone, 'value': zone} for zone in data['zone_name'].unique()],
                     value=data['zone_name'].unique()[0]
                 ),
-                dcc.Dropdown(
-                    id='day-dropdown-predict',
-                    options=[{'label': day, 'value': day} for day in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']],
-                    value='Lunes'
-                ),
-                html.Button("Predecir", id='predict-button', n_clicks=0),
-                html.Div(id='prediction-output', style={'marginTop': '20px'}),
-                dcc.Graph(id='heatmap-chart')
+                dcc.Graph(id='heatmap-chart'),
+                html.Div([
+                    html.P("Predecir la mejor hora, recorrido promedio y ganancia estimada para el día:"),
+                    dcc.Dropdown(
+                        id='day-dropdown-predict',
+                        options=[{'label': day, 'value': day} for day in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']],
+                        value='Lunes'
+                    ),
+                    html.Button("Predecir", id='predict-button', n_clicks=0),
+                    html.Div(id='prediction-output', style={'marginTop': '20px'})
+                ])
             ])
         ])
     ])
 
+    # Callbacks de Dash
     @dash_app.callback(
-        Output('demand-chart-green', 'figure'),
+        [Output('demand-chart-green', 'figure'), Output('avg-earning-chart-green', 'figure')],
         Input('day-dropdown-green', 'value')
     )
-    def update_green_chart(day):
+    def update_green_charts(day):
         demand_data = calculate_weekly_demand(day, data)
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
-            title=f"Demanda el {day}",
+            title=f"Demanda el {day}", color='avg_earning'
         )
-        fig_demand.update_layout(
-            xaxis_title="Zonas",
-            yaxis_title="Cantidad de Viajes"
+        fig_earning = px.bar(
+            demand_data, x='zone_name', y='avg_earning',
+            title=f"Ganancia Promedio el {day}"
         )
-        return fig_demand
+        return fig_demand, fig_earning
 
     @dash_app.callback(
-        Output('demand-chart-yellow', 'figure'),
+        [Output('demand-chart-yellow', 'figure'), Output('avg-earning-chart-yellow', 'figure')],
         Input('day-dropdown-yellow', 'value')
     )
-    def update_yellow_chart(day):
+    def update_yellow_charts(day):
         demand_data = calculate_weekly_demand(day, yellow_data)
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
-            title=f"Demanda el {day}",
+            title=f"Demanda el {day}", color='avg_earning'
         )
-        fig_demand.update_layout(
-            xaxis_title="Zonas",
-            yaxis_title="Cantidad de Viajes"
+        fig_earning = px.bar(
+            demand_data, x='zone_name', y='avg_earning',
+            title=f"Ganancia Promedio el {day}"
         )
-        return fig_demand
+        return fig_demand, fig_earning
 
     @dash_app.callback(
-        [Output('heatmap-chart', 'figure'), Output('prediction-output', 'children')],
-        [Input('zone-dropdown', 'value'), Input('day-dropdown-predict', 'value'), Input('predict-button', 'n_clicks')]
+        [Output('heatmap-chart', 'figure')],
+        Input('zone-dropdown', 'value')
     )
-    def update_heatmap_and_prediction(zone, day, n_clicks):
+    def update_heatmap(zone):
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
             heatmap_data, x='pickup_hour', y='pickup_day', z='trip_count',
             title=f"Demanda por Horas y Días en {zone}",
             color_continuous_scale='Viridis'
         )
-        fig.update_layout(
-            xaxis_title="Hora",
-            yaxis_title="Día"
-        )
+        return [fig]
 
+    @dash_app.callback(
+        Output('prediction-output', 'children'),
+        Input('predict-button', 'n_clicks'),
+        Input('zone-dropdown', 'value'),
+        Input('day-dropdown-predict', 'value')
+    )
+    def make_prediction(n_clicks, zone, day):
         if n_clicks > 0:
             best_time, avg_distance, avg_fare = predict_best_time_and_route(zone, data, day)
             if best_time is not None:
-                prediction_output = html.Div([
+                return html.Div([
                     html.P(f"Mejor Hora: {best_time}:00"),
                     html.P(f"Recorrido Promedio: {avg_distance:.2f} km"),
                     html.P(f"Ganancia Estimada: ${avg_fare:.2f}")
                 ])
-            else:
-                prediction_output = html.P("No hay suficientes datos para hacer una predicción en esta zona.", style={'color': 'red'})
-        else:
-            prediction_output = html.P("Presiona el botón para predecir.", style={'color': 'grey'})
+            return html.P("No hay suficientes datos para hacer una predicción en esta zona.", style={'color': 'red'})
+        return html.P("Presiona el botón para predecir.", style={'color': 'grey'})
 
-        return fig, prediction_output
-
+    # Montar Dash en FastAPI
     app.mount("/dashboard", WSGIMiddleware(dash_app.server))
 
     @app.get("/")
