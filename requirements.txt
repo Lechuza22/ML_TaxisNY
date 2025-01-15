@@ -1,4 +1,3 @@
-gunicorn
 fastapi
 pandas
 numpy
@@ -6,4 +5,5 @@ plotly
 scikit-learn
 dash
 uvicorn
+gunicorn
 
