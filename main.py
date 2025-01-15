@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -16,6 +17,9 @@ logger = logging.getLogger(__name__)
 try:
     # Configuración de FastAPI
     app = FastAPI()
+
+    # Montar directorio de archivos estáticos
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
     # Cargar datasets
     taxi_data_path = 'green_tripdata_2024-10_reducido.csv'
@@ -78,7 +82,6 @@ try:
     yellow_data = remove_outliers(yellow_data, 'trip_distance')
     yellow_data = remove_outliers(yellow_data, 'fare_amount')
 
-    # Función para calcular demanda semanal
     def calculate_weekly_demand(day_of_week, df):
         day_data = df[df['pickup_day'] == day_of_week]
         if day_data.empty:
@@ -257,7 +260,7 @@ try:
     @app.get("/")
     def read_root():
         return HTMLResponse('<div style="background-color:#1E2B3A; color:#76EEC6; text-align:center; padding:20px; font-size:1.5em; font-family:Arial, sans-serif;">'
-                            '<img src="Logo.png" alt="TaxiCom2.0 Logo" style="width:150px; margin-bottom:15px;">'
+                            '<img src="/static/Logo.png" alt="TaxiCom2.0 Logo" style="width:150px; margin-bottom:15px;">'
                             '<br>Bienvenidos a <strong>TaxiCom2.0</strong></div>'
                             '<p style="text-align:center; font-family:Arial, sans-serif;">'
                             'Visita <a href="/dashboard" style="color:#76EEC6; text-decoration:none; font-weight:bold;">/dashboard</a></p>')
