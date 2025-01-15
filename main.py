@@ -1,3 +1,5 @@
+
+
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 import pandas as pd
@@ -176,12 +178,10 @@ try:
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
             title=f"Demanda el {day}"
-            labels={'trip_count': 'Cantidad de viajes', 'zone_name': 'Zona'}
         )
         fig_earning = px.bar(
             demand_data, x='zone_name', y='avg_earning',
             title=f"Ganancia Promedio el {day}"
-            labels={'avg_earning': 'Ganancia promedio ($)', 'zone_name': 'Zona'}
         )
         return fig_demand, fig_earning
 
@@ -194,12 +194,10 @@ try:
         fig_demand = px.bar(
             demand_data, x='zone_name', y='trip_count',
             title=f"Demanda el {day}"
-            labels={'trip_count': 'Cantidad de viajes', 'zone_name': 'Zona'}
         )
         fig_earning = px.bar(
             demand_data, x='zone_name', y='avg_earning',
             title=f"Ganancia Promedio el {day}"
-            labels={'avg_earning': 'Ganancia promedio ($)', 'zone_name': 'Zona'}
         )
         return fig_demand, fig_earning
 
@@ -211,8 +209,7 @@ try:
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
             heatmap_data, x='pickup_hour', y='pickup_day', z='trip_count',
-            title=f"Gráfico de demanda por Horas y días en {zone}",
-            labels={'pickup_hour': 'Hora', 'pickup_day': 'Día', 'trip_count': 'Cantidad de viajes'}
+            title=f"Demanda por Horas y Días en {zone}",
             color_continuous_scale='Viridis'
         )
         return [fig]
