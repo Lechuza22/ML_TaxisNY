@@ -237,7 +237,7 @@ try:
 
     @app.get("/")
     def read_root():
-        return HTMLResponse('<h1>Bienvenido a TaxiCom2.0</h1><p>Visita <a href="/dashboard">/dashboard</a></p>')
+        return HTMLResponse('<h1>Bienvenido a TaxiCom2.0</h1><p>Ingresar al <a href="/dashboard">/dashboard</a></p>')
 
 except Exception as e:
     logger.error(f"Error al inicializar la app: {e}")
