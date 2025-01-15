@@ -1,0 +1,6 @@
+fastapi 
+pandas 
+numpy 
+scikit-learn
+matplotlib
+Dash, dcc, html, Input, Output, dash_table
