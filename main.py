@@ -174,7 +174,7 @@ try:
     @app.get("/")
     def read_root():
         return HTMLResponse('<div style="background-color:#1E2B3A; color:#76EEC6; text-align:center; padding:20px; font-size:1.5em; font-family:Arial, sans-serif;">'
-                            '<img src="/mnt/data/Logo.webp" alt="TaxiCom2.0 Logo" style="width:150px; margin-bottom:15px;">'
+                            '<img src="/mnt/data/Logo.png" alt="TaxiCom2.0 Logo" style="width:150px; margin-bottom:15px;">'
                             '<br>Bienvenidos a <strong>TaxiCom2.0</strong></div>'
                             '<p style="text-align:center; font-family:Arial, sans-serif;">'
                             'Visita <a href="/dashboard" style="color:#76EEC6; text-decoration:none; font-weight:bold;">/dashboard</a></p>')
