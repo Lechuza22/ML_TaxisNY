@@ -1,5 +1,3 @@
-
-
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 import pandas as pd
@@ -77,20 +75,20 @@ try:
                 'pickup_hour': lambda x: x.value_counts().idxmax()
             })
             .rename(columns={
-                'fare_amount': 'avg_earning',
-                'trip_distance': 'avg_distance',
-                'zone_name': 'trip_count',
-                'pickup_hour': 'peak_hour'
+                'fare_amount': 'ganancia_promedio',
+                'trip_distance': 'distancia_promedio',
+                'zone_name': 'cantidad_viajes',
+                'pickup_hour': 'hora_pico'
             })
             .reset_index()
         )
-        return zone_summary.sort_values(by='trip_count', ascending=False)
+        return zone_summary.sort_values(by='cantidad_viajes', ascending=False)
 
     def calculate_heatmap_data(df):
         heatmap_data = (
             df.groupby(['pickup_day', 'pickup_hour'])
             .size()
-            .reset_index(name='trip_count')
+            .reset_index(name='cantidad_viajes')
         )
         hours = pd.DataFrame({'pickup_hour': range(24)})
         days = pd.DataFrame({'pickup_day': ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']})
@@ -161,7 +159,7 @@ try:
                         options=[{'label': day, 'value': day} for day in ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']],
                         value='Lunes'
                     ),
-                    html.Button("Predecir", id='predict-button', n_clicks=0),
+                    html.Button("Predecir", id='predict-button', n_clicks=0, style={'display': 'block', 'margin': '20px auto'}),
                     html.Div(id='prediction-output', style={'marginTop': '30px', 'textAlign': 'center'})
                 ])
             ])
@@ -176,11 +174,11 @@ try:
     def update_green_charts(day):
         demand_data = calculate_weekly_demand(day, data)
         fig_demand = px.bar(
-            demand_data, x='zone_name', y='trip_count',
+            demand_data, x='zone_name', y='cantidad_viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data, x='zone_name', y='avg_earning',
+            demand_data, x='zone_name', y='ganancia_promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -192,11 +190,11 @@ try:
     def update_yellow_charts(day):
         demand_data = calculate_weekly_demand(day, yellow_data)
         fig_demand = px.bar(
-            demand_data, x='zone_name', y='trip_count',
+            demand_data, x='zone_name', y='cantidad_viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data, x='zone_name', y='avg_earning',
+            demand_data, x='zone_name', y='ganancia_promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -208,7 +206,7 @@ try:
     def update_heatmap(zone):
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
-            heatmap_data, x='pickup_hour', y='pickup_day', z='trip_count',
+            heatmap_data, x='pickup_hour', y='pickup_day', z='cantidad_viajes',
             title=f"Demanda por Horas y Días en {zone}",
             color_continuous_scale='Viridis'
         )
@@ -237,7 +235,7 @@ try:
 
     @app.get("/")
     def read_root():
-        return HTMLResponse('<h1>Bienvenido a TaxiCom2.0</h1><p>Ingresar al <a href="/dashboard">/dashboard</a></p>')
+        return HTMLResponse('<div style="background-color:blue; color:white; text-align:center; padding:20px; font-size:1.5em;">Bienvenidos a TaxiCom2.0</div><p style="text-align:center;">Ingresar al <a href="/dashboard" style="color:yellow;">/dashboard</a></p>')
 
 except Exception as e:
     logger.error(f"Error al inicializar la app: {e}")
