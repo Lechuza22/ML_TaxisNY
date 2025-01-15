@@ -174,11 +174,11 @@ try:
     def update_green_charts(day):
         demand_data = calculate_weekly_demand(day, data)
         fig_demand = px.bar(
-            demand_data, x='zone_name':'Zona', y='trip_count':'Cantidad de viajes',
+            demand_data, x='zone_name', y='cantidad_viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data,  x='zone_name':'Zona', y='avg_earning':'Ganancia',
+            demand_data, x='zone_name', y='ganancia_promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -190,11 +190,11 @@ try:
     def update_yellow_charts(day):
         demand_data = calculate_weekly_demand(day, yellow_data)
         fig_demand = px.bar(
-            demand_data,  x='zone_name':'Zona', y='trip_count':'Cantidad de viajes',
+            demand_data, x='zone_name', y='cantidad_viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data, x='zone_name':'Zona', y='avg_earning':'Ganancia',
+            demand_data, x='zone_name', y='ganancia_promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -206,7 +206,7 @@ try:
     def update_heatmap(zone):
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
-            heatmap_data, x='pickup_hour':'Hora', y='pickup_day':'Día', z='trip_count':'Cantidad de Viaje',
+            heatmap_data, x='pickup_hour', y='pickup_day', z='cantidad_viajes',
             title=f"Demanda por Horas y Días en {zone}",
             color_continuous_scale='Viridis'
         )
@@ -235,7 +235,11 @@ try:
 
     @app.get("/")
     def read_root():
-        return HTMLResponse('<div style="background-color:blue; color:white; text-align:center; padding:20px; font-size:1.5em;">Bienvenidos a TaxiCom2.0</div><p style="text-align:center;">Ingresar al <a href="/dashboard" style="color:yellow;">/dashboard</a></p>')
+        return HTMLResponse('<div style="background-color:#1E2B3A; color:#76EEC6; text-align:center; padding:20px; font-size:1.5em; font-family:Arial, sans-serif;">'
+                            '<img src="Logo.webp" alt="TaxiCom2.0 Logo" style="width:150px; margin-bottom:15px;">'
+                            '<br>Bienvenidos a <strong>TaxiCom2.0</strong></div>'
+                            '<p style="text-align:center; font-family:Arial, sans-serif;">'
+                            'Visita <a href="/dashboard" style="color:#76EEC6; text-decoration:none; font-weight:bold;">/dashboard</a></p>')
 
 except Exception as e:
     logger.error(f"Error al inicializar la app: {e}")
