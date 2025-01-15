@@ -174,11 +174,11 @@ try:
     def update_green_charts(day):
         demand_data = calculate_weekly_demand(day, data)
         fig_demand = px.bar(
-            demand_data, x='zone_name', y='cantidad_viajes',
+            demand_data, x='Zona', y='cantidad de viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data, x='zone_name', y='ganancia_promedio',
+            demand_data, x='Zona', y='ganancia promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -190,11 +190,11 @@ try:
     def update_yellow_charts(day):
         demand_data = calculate_weekly_demand(day, yellow_data)
         fig_demand = px.bar(
-            demand_data, x='zone_name', y='cantidad_viajes',
+            demand_data, x='Zona', y='cantidad de viajes',
             title=f"Demanda el {day}"
         )
         fig_earning = px.bar(
-            demand_data, x='zone_name', y='ganancia_promedio',
+            demand_data, x='Zona', y='ganancia promedio',
             title=f"Ganancia Promedio el {day}"
         )
         return fig_demand, fig_earning
@@ -206,7 +206,7 @@ try:
     def update_heatmap(zone):
         heatmap_data = calculate_heatmap_data(data[data['zone_name'] == zone])
         fig = px.density_heatmap(
-            heatmap_data, x='pickup_hour', y='pickup_day', z='cantidad_viajes',
+            heatmap_data, x='Hora', y='Día', z='cantidad de viajes',
             title=f"Demanda por Horas y Días en {zone}",
             color_continuous_scale='Viridis'
         )
